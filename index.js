@@ -12,7 +12,18 @@ app.get("/", (req, res) => {
 // WebSocket connections
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  socket.on("join", (user) => {
+    socket.user = user;
+    console.log(`user ${user} connected`);
+    socket.broadcast.emit("join", `${user} has joined the room`);
+  });
+  socket.on("disconnect", (reason) => {
+    console.log(`${socket.user} has disconnected:`, reason);
+  });
+  socket.on("chat message", (msg) => {
+    console.log(`message from ${socket.id}: ${msg}`);
+    io.emit("chat message", socket.user + ": " + msg);
+  });
 });
 
 http.listen(port, () => console.log(`listening on :${port}`));
