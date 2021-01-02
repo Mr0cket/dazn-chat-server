@@ -4,8 +4,8 @@ require("dotenv").config();
 const port = process.env.PORT || 3000;
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
-
-app.use(cors());
+const corsMiddleware = require("cors")(); // import & create an instance of the middleware
+app.use(corsMiddleware);
 
 // WebSocket connections
 
