@@ -5,7 +5,7 @@ const port = process.env.PORT || 3000;
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: {
-    origin: "chrome-extension://pbhhamnnioianobjillamhbebbkmecbi",
+    origin: true,
     methods: ["GET", "POST"],
   },
 });
