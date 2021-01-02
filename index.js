@@ -3,7 +3,12 @@ const app = express();
 require("dotenv").config();
 const port = process.env.PORT || 3000;
 const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "https://www.dazn.com/",
+    methods: ["GET", "POST"],
+  },
+});
 const corsMiddleware = require("cors")(); // import & create an instance of the middleware
 app.use(corsMiddleware);
 
