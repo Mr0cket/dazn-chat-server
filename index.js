@@ -5,9 +5,7 @@ const port = process.env.PORT || 3000;
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/chatUi/index.html"); // this will be an iframe
-});
+app.use(cors());
 
 // WebSocket connections
 
