@@ -30,8 +30,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", (msg) => {
-    console.log(`message from ${socket.user.username}: ${msg} to room ${socket.user.eventId}`);
-    socket.to(socket.user.eventId).emit("chat message", socket.user.username + ": " + msg);
+    const { username, eventId } = socket.user;
+    console.log(`message from ${username}: ${msg} to room ${eventId}`);
+    io.to("main").emit("chat message", `[main]${username} : ${msg}`);
+    io.to(eventId).emit("chat message", `[main]${username} : ${msg}`);
   });
 
   socket.on("disconnecting", (reason) => {
