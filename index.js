@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", (reason) => {
-    console.log(`${socket?.user?.username} has disconnected:`, reason);
+    if (socket.user) console.log(`${socket.user.username} has disconnected:`, reason);
   });
 });
 
