@@ -15,17 +15,29 @@ app.use(corsMiddleware);
 // WebSocket connections
 
 io.on("connection", (socket) => {
-  socket.on("join", (user) => {
-    socket.user = user;
-    console.log(`user ${user} connected`);
-    socket.broadcast.emit("join", `${user} has joined the room`);
+  // include the room that the user is in. this is identified by the eventId in the url.
+  socket.on("join", ({ username, eventId }) => {
+    socket.user = { username, eventId };
+    socket.join(eventId);
+    console.log(`user ${username} connected. eventId: ${eventId}`);
+    socket.broadcast.emit("join", `${username} has joined event ${eventId}`);
   });
-  socket.on("disconnect", (reason) => {
-    console.log(`${socket.user} has disconnected:`, reason);
-  });
+
   socket.on("chat message", (msg) => {
     console.log(`message from ${socket.id}: ${msg}`);
-    io.emit("chat message", socket.user + ": " + msg);
+    io.to(user.eventId).emit("chat message", socket.user + ": " + msg);
+  });
+
+  socket.on("disconnecting", (reason) => {
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        socket.to(room).emit("user has left", socket.user.username);
+      }
+    }
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log(`${socket.user} has disconnected:`, reason);
   });
 });
 
