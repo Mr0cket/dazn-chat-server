@@ -17,8 +17,9 @@ const eventRooms = {}; // e.g: {8k3h8bepmyl3x0i91zk7n6rys: {title: "Newcastle vs
 io.on("connection", (socket) => {
   // include the room that the user is in. this is identified by the eventId in the url.
   socket.on("join", (user) => {
-    socket.user = user;
     const { username, eventId, title } = user;
+    socket.user = { username };
+    socket.event = { eventId, title };
     console.log("eventId type:", typeof eventId);
 
     socket.join(eventId);
@@ -30,18 +31,19 @@ io.on("connection", (socket) => {
   });
   // switchRooms is only used for client => backend communication
   socket.on("switchRooms", (eventDetails) => {
-    const { eventId: newEventId, title: newTitle } = eventDetails;
-    const { username, eventId: oldEventId, title: oldTitle } = socket.user;
-    console.log(`${username} switched rooms: ${oldTitle} => ${newTitle}`);
+    const { eventId, title } = eventDetails;
+    const { username, eventId: oldEventId, title: oldTitle } = socket.event;
+    socket.event = eventDetails;
+    console.log(`${username} switched rooms: ${oldTitle} => ${title}`);
     socket.leave(oldEventId);
-    socket.join(newEventId);
+    socket.join(eventId);
     console.log("rooms:", socket.rooms);
-    io.to(newEventId).emit("join", `${username} has joined ${newTitle}`); // later: .to(eventId).broadcast.emit
-    socket.user = { ...socket.user, eventId: newEventId, title: newTitle };
+    io.to(eventId).emit("join", `${username} has joined ${title}`); // later: .to(eventId).broadcast.emit
   });
 
   socket.on("chat message", (msg) => {
-    const { username, eventId } = socket.user;
+    const { username } = socket.user;
+    const { eventId } = socket.event;
     console.log(`message from ${username}: ${msg} to room ${eventId}`);
     io.to(eventId).emit("chat message", `${username} : ${msg}`);
   });
@@ -49,7 +51,7 @@ io.on("connection", (socket) => {
   socket.on("disconnecting", (reason) => {
     for (const room of socket.rooms) {
       if (room !== socket.id) {
-        socket.to(room).emit("user has left", socket.user.username);
+        socket.to(room).emit(`${socket.user.username} has left`);
       }
     }
   });
