@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
 require("dotenv").config();
-const port = process.env.PORT || 3000;
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: {
@@ -29,11 +28,20 @@ io.on("connection", (socket) => {
     // io.to("main").emit("join", `[main]: ${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
     io.to(eventId).emit("join", `${username} has joined ${title}`); // later: .to(eventId).broadcast.emit
   });
+  // switchRooms is only used for client => backend communication
+  socket.on("switchRooms", (eventDetails) => {
+    const { eventId: newEventId, title: newTitle } = eventDetails;
+    const { username, eventId: oldEventId, title: oldTitle } = user;
+    console.log(`${username} switched rooms: ${oldTitle} => ${newTitle}`);
+    socket.leave(oldEventId);
+    socket.join(newEventId);
+    console.log("rooms:", socket.rooms);
+    io.to(newEventId).emit("join", `${username} has joined ${newTitle}`); // later: .to(eventId).broadcast.emit
+  });
 
   socket.on("chat message", (msg) => {
     const { username, eventId } = socket.user;
     console.log(`message from ${username}: ${msg} to room ${eventId}`);
-    // io.to("main").emit("chat message", `[main]${username} : ${msg}`);
     io.to(eventId).emit("chat message", `${username} : ${msg}`);
   });
 
@@ -49,5 +57,5 @@ io.on("connection", (socket) => {
     if (socket.user) console.log(`${socket.user.username} has disconnected:`, reason);
   });
 });
-
+const port = process.env.PORT || 3000;
 http.listen(port, () => console.log(`listening on :${port}`));
