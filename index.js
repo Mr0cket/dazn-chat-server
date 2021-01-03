@@ -37,6 +37,7 @@ io.on("connection", (socket) => {
     socket.join(newEventId);
     console.log("rooms:", socket.rooms);
     io.to(newEventId).emit("join", `${username} has joined ${newTitle}`); // later: .to(eventId).broadcast.emit
+    socket.user = { ...socket.user, eventId: newEventId, title: newTitle };
   });
 
   socket.on("chat message", (msg) => {
