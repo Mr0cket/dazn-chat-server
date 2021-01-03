@@ -13,20 +13,24 @@ const corsMiddleware = require("cors")(); // import & create an instance of the 
 app.use(corsMiddleware);
 
 // WebSocket connections
+const eventRooms = {}; // e.g: {8k3h8bepmyl3x0i91zk7n6rys: {title: "Newcastle vs. Leicester", socketsConnected: 2}}
 
 io.on("connection", (socket) => {
   // include the room that the user is in. this is identified by the eventId in the url.
   socket.on("join", (user) => {
     socket.user = user;
     const { username, eventId } = user;
+    console.log("eventId type:", typeof eventId);
+
     socket.join(eventId);
+    console.log("rooms:", socket.rooms);
     console.log(`user ${username} connected. eventId: ${eventId}`);
     socket.emit("join", `${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
   });
 
   socket.on("chat message", (msg) => {
-    console.log(`message from ${socket.id}: ${msg}`);
-    io.to(socket.user.eventId).emit("chat message", socket.user.userName + ": " + msg);
+    console.log(`message from ${socket.user.username}: ${msg}`);
+    io.to(socket.user.eventId).emit("chat message", socket.user.username + ": " + msg);
   });
 
   socket.on("disconnecting", (reason) => {
