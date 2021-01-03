@@ -19,7 +19,7 @@ io.on("connection", (socket) => {
   // include the room that the user is in. this is identified by the eventId in the url.
   socket.on("join", (user) => {
     socket.user = user;
-    const { username, eventId } = user;
+    const { username, eventId, title } = user;
     console.log("eventId type:", typeof eventId);
 
     socket.join(eventId);
@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
     console.log("rooms:", socket.rooms);
     console.log(`user ${username} connected. eventId: ${eventId}`);
     // io.to("main").emit("join", `[main]: ${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
-    io.to(eventId).emit("join", `${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
+    io.to(eventId).emit("join", `${username} has joined ${title}`); // later: .to(eventId).broadcast.emit
   });
 
   socket.on("chat message", (msg) => {
