@@ -23,14 +23,15 @@ io.on("connection", (socket) => {
     console.log("eventId type:", typeof eventId);
 
     socket.join(eventId);
+    socket.join("main");
     console.log("rooms:", socket.rooms);
     console.log(`user ${username} connected. eventId: ${eventId}`);
-    socket.emit("join", `${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
+    io.to("main").emit("join", `${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
   });
 
   socket.on("chat message", (msg) => {
-    console.log(`message from ${socket.user.username}: ${msg}`);
-    io.to(socket.user.eventId).emit("chat message", socket.user.username + ": " + msg);
+    console.log(`message from ${socket.user.username}: ${msg} to room ${socket.user.eventId}`);
+    socket.to(socket.user.eventId).emit("chat message", socket.user.username + ": " + msg);
   });
 
   socket.on("disconnecting", (reason) => {
