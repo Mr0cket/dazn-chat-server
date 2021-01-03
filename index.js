@@ -26,14 +26,15 @@ io.on("connection", (socket) => {
     socket.join("main");
     console.log("rooms:", socket.rooms);
     console.log(`user ${username} connected. eventId: ${eventId}`);
-    io.to("main").emit("join", `${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
+    io.to("main").emit("join", `[main]: ${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
+    io.to(eventId).emit("join", `[${eventId}]: ${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
   });
 
   socket.on("chat message", (msg) => {
     const { username, eventId } = socket.user;
     console.log(`message from ${username}: ${msg} to room ${eventId}`);
     io.to("main").emit("chat message", `[main]${username} : ${msg}`);
-    io.to(eventId).emit("chat message", `[main]${username} : ${msg}`);
+    io.to(eventId).emit("chat message", `[${eventId}]${username} : ${msg}`);
   });
 
   socket.on("disconnecting", (reason) => {
