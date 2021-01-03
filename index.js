@@ -26,7 +26,7 @@ io.on("connection", (socket) => {
 
   socket.on("chat message", (msg) => {
     console.log(`message from ${socket.id}: ${msg}`);
-    io.to(socket.user.eventId).emit("chat message", socket.user + ": " + msg);
+    io.to(socket.user.eventId).emit("chat message", socket.user.userName + ": " + msg);
   });
 
   socket.on("disconnecting", (reason) => {
