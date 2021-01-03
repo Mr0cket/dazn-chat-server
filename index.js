@@ -16,16 +16,17 @@ app.use(corsMiddleware);
 
 io.on("connection", (socket) => {
   // include the room that the user is in. this is identified by the eventId in the url.
-  socket.on("join", ({ username, eventId }) => {
-    socket.user = { username, eventId };
+  socket.on("join", (user) => {
+    socket.user = user;
+    const { username, eventId } = user;
     socket.join(eventId);
     console.log(`user ${username} connected. eventId: ${eventId}`);
-    socket.broadcast.emit("join", `${username} has joined event ${eventId}`);
+    socket.emit("join", `${username} has joined event ${eventId}`); // later: .to(eventId).broadcast.emit
   });
 
   socket.on("chat message", (msg) => {
     console.log(`message from ${socket.id}: ${msg}`);
-    io.to(user.eventId).emit("chat message", socket.user + ": " + msg);
+    io.to(socket.user.eventId).emit("chat message", socket.user + ": " + msg);
   });
 
   socket.on("disconnecting", (reason) => {
@@ -37,7 +38,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", (reason) => {
-    console.log(`${socket.user} has disconnected:`, reason);
+    console.log(`${socket.user.username} has disconnected:`, reason);
   });
 });
 
