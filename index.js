@@ -32,7 +32,8 @@ io.on("connection", (socket) => {
   // switchRooms is only used for client => backend communication
   socket.on("switchRooms", (eventDetails) => {
     const { eventId, title } = eventDetails;
-    const { username, eventId: oldEventId, title: oldTitle } = socket.event;
+    const { eventId: oldEventId, title: oldTitle } = socket.event;
+    const { username } = socket.user;
     socket.event = eventDetails;
     console.log(`${username} switched rooms: ${oldTitle} => ${title}`);
     socket.leave(oldEventId);
